@@ -8,6 +8,8 @@ var connection = require('../condb');
 
 var uploadImage = require('./upload-image');
 
+var crypto = require('./cypto');
+
 var BANQUET = 'เลี้ยงอาหารเด็ก';
 var REQUEST = 'จัดหาให้';
 var BYMYSELF = 'นำมาเอง';
@@ -56,7 +58,15 @@ exports.getById = function (req, res) {
 };
 
 exports.getByFoundation = function (req, res) {
-  mysqlQuery('SELECT *,booking.id as booking_id,booking.name as booking_name,member.name as member_name FROM booking INNER JOIN member ON member.id = booking.member_id WHERE foundation = ?', req.params.foundation).then(function (rows) {
+  var where = "";
+  var foundation = crypto.decrypt(req.params.foundation);
+
+  if (foundation != 'admin') {
+    where = "AND foundation = '".concat(foundation, "'");
+  }
+
+  var search = "booking.name LIKE '%".concat(req.query.search ? req.query.search : '', "%'");
+  mysqlQuery("SELECT *,booking.id as booking_id,booking.name as booking_name,member.name as member_name FROM booking INNER JOIN member ON member.id = booking.member_id WHERE ".concat(search, " ").concat(where)).then(function (rows) {
     res.send(rows);
   })["catch"](function (err) {
     return setImmediate(function () {
@@ -112,7 +122,7 @@ exports.create = function _callee(req, res) {
 
           file = req.files.file;
           _context2.next = 7;
-          return regeneratorRuntime.awrap(uploadImage.uploadToS3(file));
+          return regeneratorRuntime.awrap(uploadImage.upload(file));
 
         case 7:
           file_name = _context2.sent;

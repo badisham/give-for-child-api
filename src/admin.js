@@ -1,6 +1,7 @@
 var mysql = require('mysql');
 var connection = require('../condb');
 const uploadImage = require('./upload-image');
+const crypto = require('./cypto');
 
 async function mysqlQuery(query, req) {
     return new Promise(function (resolve, reject) {
@@ -37,6 +38,24 @@ exports.getById = (req, res) => {
         );
 };
 
+exports.getByFoundation = (req, res) => {
+    let where = ``;
+    const foundation = crypto.decrypt(req.params.foundation);
+    if (foundation != 'admin') {
+        where = 'AND foundation = ?';
+    }
+
+    mysqlQuery(`SELECT * FROM admin WHERE foundation != 'admin' ${where}`, foundation)
+        .then((rows) => {
+            res.send(rows);
+        })
+        .catch((err) =>
+            setImmediate(() => {
+                throw err;
+            }),
+        );
+};
+
 exports.create = (req, res) => {
     mysqlQuery('INSERT INTO admin SET ?', req.body)
         .then(function (rows) {
@@ -55,7 +74,10 @@ exports.login = (req, res) => {
     const password = req.body.password;
     mysqlQuery('SELECT * FROM admin WHERE username = ? AND password = ? LIMIT 1', [username, password])
         .then(function (rows) {
-            res.send(rows[0]);
+            let data = rows[0];
+            console.log(data);
+            data['foundation'] = crypto.encrypt(data.foundation);
+            res.send(data);
         })
         .catch((err) =>
             setImmediate(() => {

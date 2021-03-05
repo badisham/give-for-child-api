@@ -6,6 +6,8 @@ var connection = require('../condb');
 
 var uploadImage = require('./upload-image');
 
+var crypto = require('./cypto');
+
 function mysqlQuery(query, req) {
   return regeneratorRuntime.async(function mysqlQuery$(_context) {
     while (1) {
@@ -60,7 +62,15 @@ exports.getByMemberId = function (req, res) {
 };
 
 exports.getByFoundation = function (req, res) {
-  mysqlQuery('SELECT * FROM donation WHERE foundation = ? ', req.params.foundation).then(function (rows) {
+  var where = "";
+  var foundation = crypto.decrypt(req.params.foundation);
+
+  if (foundation != 'admin') {
+    where = "AND foundation = '".concat(foundation, "'");
+  }
+
+  var search = "name LIKE '%".concat(req.query.search ? req.query.search : '', "%'");
+  mysqlQuery("SELECT * FROM donation WHERE ".concat(search, " ").concat(where)).then(function (rows) {
     res.send(rows);
   })["catch"](function (err) {
     return setImmediate(function () {

@@ -1,6 +1,7 @@
 var mysql = require('mysql');
 var connection = require('../condb');
 const uploadImage = require('./upload-image');
+const crypto = require('./cypto');
 
 async function mysqlQuery(query, req) {
     return new Promise(function (resolve, reject) {
@@ -49,7 +50,13 @@ exports.getByMemberId = (req, res) => {
 };
 
 exports.getByFoundation = (req, res) => {
-    mysqlQuery('SELECT * FROM donation WHERE foundation = ? ', req.params.foundation)
+    let where = ``;
+    const foundation = crypto.decrypt(req.params.foundation);
+    if (foundation != 'admin') {
+        where = `AND foundation = '${foundation}'`;
+    }
+    let search = `name LIKE '%${req.query.search ? req.query.search : ''}%'`;
+    mysqlQuery(`SELECT * FROM donation WHERE ${search} ${where}`)
         .then(function (rows) {
             res.send(rows);
         })

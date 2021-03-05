@@ -2,6 +2,7 @@ const moment = require('moment');
 var mysql = require('mysql');
 var connection = require('../condb');
 const uploadImage = require('./upload-image');
+const crypto = require('./cypto');
 
 const BANQUET = 'เลี้ยงอาหารเด็ก';
 const REQUEST = 'จัดหาให้';
@@ -42,9 +43,14 @@ exports.getById = (req, res) => {
         );
 };
 exports.getByFoundation = (req, res) => {
+    let where = ``;
+    const foundation = crypto.decrypt(req.params.foundation);
+    if (foundation != 'admin') {
+        where = `AND foundation = '${foundation}'`;
+    }
+    let search = `booking.name LIKE '%${req.query.search ? req.query.search : ''}%'`;
     mysqlQuery(
-        'SELECT *,booking.id as booking_id,booking.name as booking_name,member.name as member_name FROM booking INNER JOIN member ON member.id = booking.member_id WHERE foundation = ?',
-        req.params.foundation,
+        `SELECT *,booking.id as booking_id,booking.name as booking_name,member.name as member_name FROM booking INNER JOIN member ON member.id = booking.member_id WHERE ${search} ${where}`,
     )
         .then(function (rows) {
             res.send(rows);
@@ -96,7 +102,7 @@ exports.create = async (req, res) => {
     let file_name = '';
     if (body.option == REQUEST) {
         const file = req.files.file;
-        file_name = await uploadImage.uploadToS3(file);
+        file_name = await uploadImage.upload(file);
     }
 
     mysqlQuery('INSERT INTO booking SET ?', data)

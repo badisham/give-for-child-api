@@ -37,7 +37,9 @@ exports.getById = (req, res) => {
 };
 
 exports.create = async (req, res) => {
-    mysqlQuery('INSERT INTO fou_catagory SET ?', req.body)
+    let body = req.body;
+    body.foundation = crypto.decrypt(body.foundation);
+    mysqlQuery('INSERT INTO fou_catagory SET ?', body)
         .then(function (rows) {
             // res.end(JSON.stringify(row));
             res.send({ id: rows.insertId });

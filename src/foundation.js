@@ -53,7 +53,7 @@ exports.getById = (req, res) => {
 
 exports.create = async (req, res) => {
     const file = req.files.file;
-    let file_name = await uploadImage.uploadToS3(file);
+    let file_name = await uploadImage.upload(file);
     const body = JSON.parse(req.body.data);
     let data = {
         name: body.name,

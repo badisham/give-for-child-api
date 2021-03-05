@@ -12,6 +12,8 @@ var connection = require('../condb');
 
 var uploadImage = require('./upload-image');
 
+var crypto = require('./cypto');
+
 function mysqlQuery(query, req) {
   return regeneratorRuntime.async(function mysqlQuery$(_context) {
     while (1) {
@@ -101,14 +103,16 @@ exports.deleteActivity = function (req, res) {
 };
 
 exports.getByFoundation = function (req, res) {
-  var foundation_id = req.params.id;
-  var queryId = "";
+  var where = "";
+  var foundation = crypto.decrypt(req.params.foundation);
 
-  if (foundation_id !== '0') {
-    queryId = "WHERE foundation_id = '".concat(foundation_id, "'");
+  if (foundation != 'admin') {
+    where = "AND foundation = '".concat(foundation, "'");
   }
 
-  mysqlQuery("SELECT *,( SELECT COUNT(id) FROM join_activity WHERE activity_id = act.id) as person FROM activity as act " + queryId).then(function (rows) {
+  var search = "name LIKE '%".concat(req.query.search ? req.query.search : '', "%'"); // mysqlQuery(`SELECT *,( SELECT COUNT(id) FROM join_activity WHERE activity_id = act.id) as person FROM activity as act WHERE ${search} ${where}`)
+
+  mysqlQuery("SELECT * FROM activity WHERE ".concat(search, " ").concat(where)).then(function (rows) {
     res.send(rows);
   })["catch"](function (err) {
     return setImmediate(function () {
@@ -135,7 +139,7 @@ exports.create = function _callee(req, res) {
         case 0:
           file = req.files.file;
           _context2.next = 3;
-          return regeneratorRuntime.awrap(uploadImage.uploadToS3(file));
+          return regeneratorRuntime.awrap(uploadImage.upload(file));
 
         case 3:
           url = _context2.sent;
@@ -143,6 +147,7 @@ exports.create = function _callee(req, res) {
           body = _objectSpread({}, body, {}, {
             image: url
           });
+          body.foundation = crypto.decrypt(body.foundation);
           mysqlQuery('INSERT INTO activity SET ?', body).then(function (rows) {
             res.end('last ID: ' + rows.insertId);
           })["catch"](function (err) {
@@ -151,7 +156,7 @@ exports.create = function _callee(req, res) {
             });
           });
 
-        case 7:
+        case 8:
         case "end":
           return _context2.stop();
       }
@@ -184,7 +189,7 @@ exports.joinActivity = function (req, res) {
 };
 
 exports.edit = function _callee2(req, res) {
-  var image_name, file, file_name, body, id, data;
+  var image_name, file, fileName, body, id, data;
   return regeneratorRuntime.async(function _callee2$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
@@ -198,11 +203,11 @@ exports.edit = function _callee2(req, res) {
 
           file = req.files.file;
           _context3.next = 5;
-          return regeneratorRuntime.awrap(uploadImage.uploadToS3(file));
+          return regeneratorRuntime.awrap(uploadImage.upload(file));
 
         case 5:
-          file_name = _context3.sent;
-          image_name = ", image = '".concat(file_name, ".jpg'");
+          fileName = _context3.sent;
+          image_name = ", image = '".concat(fileName, "'");
 
         case 7:
           body = JSON.parse(req.body.data);

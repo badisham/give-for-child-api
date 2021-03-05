@@ -1,6 +1,7 @@
 var mysql = require('mysql');
 var connection = require('../condb');
 const uploadImage = require('./upload-image');
+const crypto = require('./cypto');
 
 async function mysqlQuery(query, req) {
     return new Promise(function (resolve, reject) {
@@ -36,11 +37,17 @@ exports.getById = (req, res) => {
             }),
         );
 };
-exports.getByFoundation = (req, res) => {
-    mysqlQuery(
-        'SELECT *, member.name as member_name,activity.name as activity_name,join_activity.id as join_id FROM join_activity INNER JOIN activity ON activity.id = join_activity.activity_id INNER JOIN foundation ON foundation.name = activity.foundation INNER JOIN member ON member.id = join_activity.member_id WHERE foundation.name = ?',
 
-        req.params.foundation,
+exports.getByFoundation = (req, res) => {
+    let where = ``;
+    const foundation = crypto.decrypt(req.params.foundation);
+    if (foundation != 'admin') {
+        where = `AND foundation = '${foundation}'`;
+    }
+    let search = `member.name LIKE '%${req.query.search ? req.query.search : ''}%'`;
+
+    mysqlQuery(
+        `SELECT *, member.name as member_name,activity.name as activity_name,join_activity.id as join_id FROM join_activity INNER JOIN activity ON activity.id = join_activity.activity_id INNER JOIN foundation ON foundation.name = activity.foundation INNER JOIN member ON member.id = join_activity.member_id WHERE ${search} ${where} `,
     )
         .then(function (rows) {
             res.send(rows);
@@ -129,21 +136,4 @@ exports.delete = (req, res) => {
                 throw err;
             }),
         );
-};
-
-exports.upload = (req, res) => {
-    if (req.files === null) {
-        return res.status(400).json({ msg: 'No file was uploaded' });
-    }
-
-    const file = req.files.file;
-    uploadImage.uploadToS3(file);
-    // file.mv(`${__dirname}/client/public/uploads/${file.name}`, (err) => {
-    //     if (err) {
-    //         console.error(err);
-    //         return res.status(500).send(err);
-    //     }
-
-    //     res.json({ fileName: file.name, filePath: `/uploads/${file.name}` });
-    // });
 };

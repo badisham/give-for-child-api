@@ -1,6 +1,7 @@
 var mysql = require('mysql');
 var connection = require('../condb');
 const uploadImage = require('./upload-image');
+const mailer = require('./mailer');
 
 async function mysqlQuery(query, req) {
     return new Promise(function (resolve, reject) {
@@ -58,8 +59,8 @@ exports.login = (req, res) => {
         .then(function (rows) {
             if (rows[0]) {
                 console.log('old');
-                // const name = rows[0].name;
-                // const img = rows[0].img;
+                let data = [req.body.img, req.body.sub_line_id];
+                mysqlQuery('UPDATE member SET img = ? WHERE sub_line_id = ?', data);
                 res.send({
                     id: rows[0].id,
                     name: req.body.name,
@@ -141,19 +142,17 @@ exports.delete = (req, res) => {
         );
 };
 
-exports.upload = (req, res) => {
+exports.upload = async (req, res) => {
+    const file = req.files.file;
+
     if (req.files === null) {
         return res.status(400).json({ msg: 'No file was uploaded' });
     }
+    var result = await uploadImage.upload(file);
+    return res.send(result);
+};
 
-    const file = req.files.file;
-    uploadImage.uploadToS3(file);
-    file.mv(`/uploads/${file.name}`, (err) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send(err);
-        }
-
-        res.json({ fileName: file.name, filePath: `/uploads/${file.name}` });
-    });
+exports.mailer = (req, res) => {
+    mailer.SendEmail('mick.skyd@gmail.com', 'asdhawiudhoawhdo;iawhd');
+    res.json('asdoahosdh');
 };

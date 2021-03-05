@@ -1,6 +1,7 @@
 var mysql = require('mysql');
 var connection = require('../condb');
 const uploadImage = require('./upload-image');
+const crypto = require('./cypto');
 
 async function mysqlQuery(query, req) {
     return new Promise(function (resolve, reject) {
@@ -102,15 +103,14 @@ exports.deleteActivity = (req, res) => {
 };
 
 exports.getByFoundation = (req, res) => {
-    const foundation_id = req.params.id;
-    let queryId = ``;
-    if (foundation_id !== '0') {
-        queryId = `WHERE foundation_id = '${foundation_id}'`;
+    let where = ``;
+    const foundation = crypto.decrypt(req.params.foundation);
+    if (foundation != 'admin') {
+        where = `AND foundation = '${foundation}'`;
     }
-    mysqlQuery(
-        `SELECT *,( SELECT COUNT(id) FROM join_activity WHERE activity_id = act.id) as person FROM activity as act ` +
-            queryId,
-    )
+    let search = `name LIKE '%${req.query.search ? req.query.search : ''}%'`;
+    // mysqlQuery(`SELECT *,( SELECT COUNT(id) FROM join_activity WHERE activity_id = act.id) as person FROM activity as act WHERE ${search} ${where}`)
+    mysqlQuery(`SELECT * FROM activity WHERE ${search} ${where}`)
         .then((rows) => {
             res.send(rows);
         })
@@ -139,9 +139,10 @@ exports.getById = (req, res) => {
 exports.create = async (req, res) => {
     const file = req.files.file;
 
-    let url = await uploadImage.uploadToS3(file);
+    let url = await uploadImage.upload(file);
     let body = JSON.parse(req.body.body);
     body = { ...body, ...{ image: url } };
+    body.foundation = crypto.decrypt(body.foundation);
     mysqlQuery('INSERT INTO activity SET ?', body)
         .then(function (rows) {
             res.end('last ID: ' + rows.insertId);
@@ -188,8 +189,8 @@ exports.edit = async (req, res) => {
 
     if (req.files != null) {
         const file = req.files.file;
-        let file_name = await uploadImage.uploadToS3(file);
-        image_name = `, image = '${file_name}.jpg'`;
+        let fileName = await uploadImage.upload(file);
+        image_name = `, image = '${fileName}'`;
     }
 
     const body = JSON.parse(req.body.data);
