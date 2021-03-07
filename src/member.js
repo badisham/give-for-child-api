@@ -52,9 +52,8 @@ exports.register = (req, res) => {
 };
 
 exports.login = (req, res) => {
-    console.log('asdasd');
     const sub_line_id = req.body.sub_line_id;
-    console.log(sub_line_id);
+    
     mysqlQuery('SELECT * FROM member WHERE sub_line_id = ?', [sub_line_id])
         .then(function (rows) {
             if (rows[0]) {
@@ -72,6 +71,7 @@ exports.login = (req, res) => {
                     sub_line_id: req.body.sub_line_id,
                     img: req.body.img,
                     name: req.body.name,
+                    email: req.body.email,
                 };
                 mysqlQuery('INSERT INTO member SET ?', data)
                     .then(function (rows) {
