@@ -8,7 +8,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(fileUpload());
 
-var port = process.env.PORT || 8080;
+// var port = process.env.PORT || 8080;
+var port = process.env.PORT || 3001;
 var server = app.listen(port, function () {
     console.log('Server running');
 });
@@ -66,6 +67,7 @@ app.delete('/donation/:id', urlencodedParser, donate.delete);
 
 const join_activity = require('./src/join_activity');
 app.get('/join_activity', join_activity.getAll);
+app.get('/join_activity/sendmail', join_activity.sendMail);
 app.get('/join_activity/:id', join_activity.getById);
 app.post('/join_activity/foundation/', join_activity.getByFoundation);
 app.post('/join_activity', urlencodedParser, join_activity.create);
@@ -75,6 +77,7 @@ app.delete('/join_activity/:id', urlencodedParser, join_activity.delete);
 
 const booking = require('./src/booking');
 app.get('/booking', booking.getAll);
+app.get('/booking/sendmail', booking.sendMail);
 app.get('/booking/:id', booking.getById);
 app.post('/booking/foundation/', booking.getByFoundation);
 app.get('/booking/member/:id', booking.getByMemberId);

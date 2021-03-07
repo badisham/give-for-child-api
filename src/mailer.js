@@ -7,11 +7,11 @@ var transporter = nodemailer.createTransport({
         pass: 'Realzaa2020__',
     },
 });
-exports.SendEmail = (toEmail, message) => {
+exports.SendEmail = (toEmail, subject , message) => {
     var mailOptions = {
         from: 'phettairT09@gmail.com',
         to: toEmail,
-        subject: 'Give for child - เวลานัดหมาย',
+        subject: subject,
         text: message,
     };
 

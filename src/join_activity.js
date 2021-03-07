@@ -2,6 +2,7 @@ var mysql = require('mysql');
 var connection = require('../condb');
 const uploadImage = require('./upload-image');
 const crypto = require('./cypto');
+const mailer = require('./mailer');
 
 async function mysqlQuery(query, req) {
     return new Promise(function (resolve, reject) {
@@ -72,7 +73,7 @@ exports.getByMemberId = (req, res) => {
 };
 
 exports.getSuccessByMemberId = (req, res) => {
-    mysqlQuery("SELECT * FROM donation WHERE member_id = ? AND is_success = '1'", req.params.id)
+    mysqlQuery("SELECT * FROM join_activity WHERE member_id = ? AND is_success = '1'", req.params.id)
         .then(function (rows) {
             res.send(rows);
         })
@@ -82,6 +83,26 @@ exports.getSuccessByMemberId = (req, res) => {
             }),
         );
 };
+
+exports.sendMail = (req, res) => {
+    console.log('sendmail');
+    mysqlQuery("SELECT *,ac.name as activity_name,member.name as member_name FROM `activity` as `ac` INNER JOIN join_activity as `jc` ON jc.activity_id = ac.id INNER JOIN member ON member.id = jc.member_id WHERE ac.start_time < NOW() AND ac.end_time < NOW()")
+        .then(function (rows) {
+            rows.forEach(row => {
+                console.log('send:'+ row.member_name + ':' + row.email);
+                const subject = 'กิจกรรม' + row.activity_name + 'ได้มาถึงแล้ว';
+                const message = 'จากมูลนิธิ ' + row.foundation + ' เวลานัดหมาย :' + row.start_time + ' ถึง ' + row.end_time;
+                mailer.SendEmail(row.email, subject,message);
+            });
+            res.send(true);
+        })
+        .catch((err) =>
+            setImmediate(() => {
+                throw err;
+            }),
+        );
+    
+}
 
 exports.create = (req, res) => {
     mysqlQuery('INSERT INTO join_activity SET ?', req.body)

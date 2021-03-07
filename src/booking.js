@@ -42,6 +42,29 @@ exports.getById = (req, res) => {
             }),
         );
 };
+
+
+exports.sendMail = (req, res) => {
+    console.log('sendmail');
+    mysqlQuery("SELECT * FROM `booking` INNER JOIN member ON member.id = booking.member_id WHERE date <= NOW() AND date > NOW() - INTERVAL 1 DAY")
+        .then(function (rows) {
+            rows.forEach(row => {
+                console.log('send:'+ row.name + ':' + row.email);
+                const subject = 'การจองของคุณ' + row.name + 'ได้มาถึงแล้ว'; 
+                const message = 'คุณได้จองการ ' + row.category + 'ที่มูลนิธิ' +row.foundation + ' เวลานัดหมาย :' + row.date ;
+                mailer.SendEmail(row.email, subject,message);
+            });
+            res.send(true);
+        })
+        .catch((err) =>
+            setImmediate(() => {
+                throw err;
+            }),
+        );
+    
+}
+
+
 exports.getByFoundation = (req, res) => {
     let where = ``;
     const foundation = crypto.decrypt(req.body.foundation);
