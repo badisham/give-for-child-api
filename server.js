@@ -15,7 +15,7 @@ var server = app.listen(port, function () {
 // app.set('port', process.env.PORT || 3000);
 
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'https://give-for-child.thesis-su2020ict.com/');
+    res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, PATCH, DELETE, OPTIONS');
     next();
 });
