@@ -42,8 +42,8 @@ exports.getList = (req, res) => {
 
 exports.getById = (req, res) => {
     let foundation = crypto.decrypt(req.params.foundation);
-    foundation = foundation == 'admin' ? '': foundation;
-    mysqlQuery('SELECT * FROM foundation WHERE name = ?',foundation)
+    foundation = foundation == 'admin' ? '': 'WHERE name ='+foundation;
+    mysqlQuery(`SELECT * FROM foundation ${foundation}`)
         .then(function (rows) {
             return res.send(rows);
         })
