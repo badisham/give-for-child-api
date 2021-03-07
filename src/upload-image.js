@@ -12,30 +12,30 @@ exports.upload = async (file) => {
     const filePath = `${__dirname}/temp/${fileName}`;
     var c = new Client();
     return new Promise((resolve, reject) => {
-            file.mv(filePath, (err) => {
-                if (err) reject(err);
-                c.on('ready', () => {
-                    c.put(filePath, `/uploads/${fileName}`, (err) => {
-                        fs.unlink(filePath, () => {
-                            console.log('upload & unlink success.');
-                        });
-                        if (err) reject(err);
-                        c.end();
-                        resolve(true);
-                    });
-                });
-                c.connect({
-                    host: 'web3.vpsthai.net',
-                    user: 'give-child@aowdtech.com',
-                    password: 'asdasd',
-                });
-            });
+            // file.mv(filePath, (err) => {
+            //     if (err) reject(err);
+            //     c.on('ready', () => {
+            //         c.put(filePath, `/uploads/${fileName}`, (err) => {
+            //             fs.unlink(filePath, () => {
+            //                 console.log('upload & unlink success.');
+            //             });
+            //             if (err) reject(err);
+            //             c.end();
+            //             resolve(true);
+            //         });
+            //     });
+            //     c.connect({
+            //         host: 'web3.vpsthai.net',
+            //         user: 'give-child@aowdtech.com',
+            //         password: 'asdasd',
+            //     });
+            // });
         // });
 
-        // file.mv(`C:/Users/FOLK/Desktop/real/give-for-child/public/resources/uploads/${fileName}`, (err) => {
-        //     if (err) reject(err);
-        //     resolve(fileName);
-        // });
+        file.mv(`../give-for-child/public/resources/uploads/${fileName}`, (err) => {
+            if (err) reject(err);
+            resolve(fileName);
+        });
     });
 };
 

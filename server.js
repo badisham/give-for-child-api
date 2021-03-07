@@ -8,8 +8,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(fileUpload());
 
-var port = process.env.PORT || 8080;
-// var port = process.env.PORT || 3001;
+// var port = process.env.PORT || 8080;
+var port = process.env.PORT || 3001;
 var server = app.listen(port, function () {
     console.log('Server running');
 });
