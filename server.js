@@ -91,7 +91,7 @@ app.delete('/booking/:id', urlencodedParser, booking.delete);
 const foundation = require('./src/foundation');
 app.get('/foundation', foundation.getAll);
 app.get('/foundation-list', foundation.getList);
-app.get('/foundation/:id', foundation.getById);
+app.get('/foundation/:foundation', foundation.getById);
 app.post('/foundation', urlencodedParser, foundation.create);
 app.put('/foundation/:id', urlencodedParser, foundation.edit);
 app.delete('/foundation/:id', urlencodedParser, foundation.delete);

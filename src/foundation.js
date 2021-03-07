@@ -1,6 +1,7 @@
 var mysql = require('mysql');
 var connection = require('../condb');
 const uploadImage = require('./upload-image');
+const crypto = require('./cypto');
 
 const moment = require('moment');
 
@@ -40,9 +41,11 @@ exports.getList = (req, res) => {
 };
 
 exports.getById = (req, res) => {
-    mysqlQuery('SELECT * FROM foundation WHERE id = ?', req.params.id)
+    let foundation = crypto.decrypt(req.params.foundation);
+    console.log(foundation);
+    mysqlQuery('SELECT * FROM foundation WHERE name = ?',foundation)
         .then(function (rows) {
-            res.end(JSON.stringify(rows[0]));
+            return res.send(rows);
         })
         .catch((err) =>
             setImmediate(() => {
