@@ -1,5 +1,6 @@
 var mysql = require('mysql');
 var connection = require('../condb');
+const crypto = require('./cypto');
 
 async function mysqlQuery(query, req) {
     return new Promise(function (resolve, reject) {
@@ -25,7 +26,7 @@ exports.getAll = (req, res) => {
 };
 
 exports.getById = (req, res) => {
-    mysqlQuery('SELECT * FROM fou_catagory WHERE foundation_name = ? ORDER BY id DESC', req.params.name)
+    mysqlQuery('SELECT * FROM fou_catagory WHERE foundation = ? ORDER BY id DESC', req.params.name)
         .then(function (rows) {
             res.send(rows);
         })
