@@ -32,7 +32,7 @@ exports.upload = async (file) => {
         //     });
         // });
 
-        file.mv(`C:/Users/micky/Desktop/Thesis all/real/give-for-child/public/resources/uploads/${fileName}`, (err) => {
+        file.mv(`C:/Users/FOLK/Desktop/real/give-for-child/public/resources/uploads/${fileName}`, (err) => {
             if (err) reject(err);
             resolve(fileName);
         });

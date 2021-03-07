@@ -50,7 +50,10 @@ exports.getByFoundation = (req, res) => {
     }
     let search = `booking.name LIKE '%${req.query.search ? req.query.search : ''}%'`;
     mysqlQuery(
-        `SELECT *,booking.id as booking_id,booking.name as booking_name,member.name as member_name FROM booking INNER JOIN member ON member.id = booking.member_id WHERE ${search} ${where}`,
+        `SELECT *,booking.id as booking_id,booking.name as booking_name,member.name as member_name FROM booking 
+        INNER JOIN member ON member.id = booking.member_id 
+        LEFT JOIN banquet ON booking.id = banquet.booking_id
+        WHERE ${search} ${where}`,
     )
         .then(function (rows) {
             res.send(rows);

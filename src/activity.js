@@ -108,6 +108,7 @@ exports.getByFoundation = (req, res) => {
     if (foundation != 'admin') {
         where = `AND foundation = '${foundation}'`;
     }
+    console.log(foundation);
     let search = `name LIKE '%${req.query.search ? req.query.search : ''}%'`;
     // mysqlQuery(`SELECT *,( SELECT COUNT(id) FROM join_activity WHERE activity_id = act.id) as person FROM activity as act WHERE ${search} ${where}`)
     mysqlQuery(`SELECT * FROM activity WHERE ${search} ${where}`)

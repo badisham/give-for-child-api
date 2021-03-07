@@ -58,6 +58,7 @@ exports.create = async (req, res) => {
     let data = {
         name: body.name,
         url: body.url,
+        address: body.address,
         img: file_name,
     };
     await mysqlQuery('INSERT INTO foundation SET ?', data)

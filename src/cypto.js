@@ -8,6 +8,7 @@ exports.encrypt = (text) => {
 };
 
 exports.decrypt = (encoded) => {
+    console.log(encoded)
     var bytes = base64.decode(encoded);
     var text = utf8.decode(bytes);
     return text;
