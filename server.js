@@ -8,8 +8,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(fileUpload());
 
-// var port = process.env.PORT || 8080;
-var port = process.env.PORT || 3001;
+var port = process.env.PORT || 8080;
+// var port = process.env.PORT || 3001;
 var server = app.listen(port, function () {
     console.log('Server running');
 });
@@ -56,6 +56,7 @@ app.delete('/activity/member/:id', activity.deleteActivity);
 
 const donate = require('./src/donation');
 app.get('/donates', donate.getAll);
+app.get('/donation/sendmail', donate.sendMail);
 app.get('/donation/:id', donate.getById);
 app.get('/donation/member/:id', donate.getByMemberId);
 app.get('/donation/member/success/:id', donate.getSuccessByMemberId);

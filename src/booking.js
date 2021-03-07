@@ -61,7 +61,6 @@ exports.sendMail = (req, res) => {
                 throw err;
             }),
         );
-    
 }
 
 

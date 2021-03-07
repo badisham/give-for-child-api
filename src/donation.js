@@ -2,6 +2,7 @@ var mysql = require('mysql');
 var connection = require('../condb');
 const uploadImage = require('./upload-image');
 const crypto = require('./cypto');
+const mailer = require('./mailer');
 
 async function mysqlQuery(query, req) {
     return new Promise(function (resolve, reject) {
@@ -67,6 +68,27 @@ exports.getByFoundation = (req, res) => {
             }),
         );
 };
+
+
+exports.sendMail = (req, res) => {
+    console.log('sendmail');
+    mysqlQuery("SELECT *,donation.name as donation_name FROM `donation` INNER JOIN member ON member.id = donation.member_id WHERE date_time <= NOW() AND date_time > NOW() - INTERVAL 1 DAY")
+        .then(function (rows) {
+            rows.forEach(row => {
+                console.log('send:'+ row.name + ':' + row.email);
+                const subject = 'การจองของคุณ' + row.name + 'ได้มาถึงแล้ว'; 
+                const message = 'คุณได้นัดการจองบริจาคของกับมูลนิธิ' +row.foundation +' ที่' + row.location + ' เวลานัดหมาย :' + row.date_time ;
+                mailer.SendEmail(row.email, subject,message);
+            });
+            res.send(true);
+        })
+        .catch((err) =>
+            setImmediate(() => {
+                throw err;
+            }),
+        );
+}
+
 
 exports.getSuccessByMemberId = (req, res) => {
     mysqlQuery("SELECT * FROM donation WHERE member_id = ? AND is_success = '1'", req.params.id)
