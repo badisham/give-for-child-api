@@ -76,7 +76,7 @@ exports.login = (req, res) => {
                 mysqlQuery('INSERT INTO member SET ?', data)
                     .then(function (rows) {
                         res.send({
-                            id: rows[0].insertId,
+                            id: rows.insertId,
                             name: req.body.name,
                             img: req.body.img,
                         });

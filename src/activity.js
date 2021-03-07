@@ -42,6 +42,22 @@ exports.getActivityNow = (req, res) => {
         );
 };
 
+exports.gethome = (req, res) => {
+    mysqlQuery(
+        'SELECT *,( SELECT COUNT(id) FROM join_activity WHERE activity_id = act.id) as person FROM `activity` as act WHERE start_time < NOW() ORDER BY act.id DESC LIMIT 3',
+    )
+        .then((rows) => {
+            res.send(rows);
+        })
+        .catch((err) =>
+            setImmediate(() => {
+                throw err;
+            }),
+        );
+};
+
+
+
 exports.getActivityComingSoon = (req, res) => {
     mysqlQuery(
         'SELECT *,( SELECT COUNT(id) FROM join_activity WHERE activity_id = act.id) as person FROM `activity` as act WHERE start_time > NOW() ORDER BY act.id DESC',
@@ -62,7 +78,6 @@ exports.getActivityByMemberId = (req, res) => {
         req.params.id,
     )
         .then((rows) => {
-            console.log(rows.length);
             res.send(rows);
         })
         .catch((err) =>
@@ -104,13 +119,12 @@ exports.deleteActivity = (req, res) => {
 
 exports.getByFoundation = (req, res) => {
     let where = ``;
-    const foundation = crypto.decrypt(req.params.foundation);
+    const foundation = crypto.decrypt(req.body.foundation);
     if (foundation != 'admin') {
         where = `AND foundation = '${foundation}'`;
     }
-    console.log(foundation);
-    let search = `name LIKE '%${req.query.search ? req.query.search : ''}%'`;
-    // mysqlQuery(`SELECT *,( SELECT COUNT(id) FROM join_activity WHERE activity_id = act.id) as person FROM activity as act WHERE ${search} ${where}`)
+    let search = `name LIKE '%${req.body.search ? req.body.search : ''}%'`;
+    
     mysqlQuery(`SELECT * FROM activity WHERE ${search} ${where}`)
         .then((rows) => {
             res.send(rows);
@@ -160,6 +174,7 @@ exports.joinActivity = (req, res) => {
         activity_id: req.body.activity_id,
         member_id: parseInt(req.body.member_id),
     };
+    console.log(data);
     mysqlQuery(
         `SELECT id FROM join_activity WHERE activity_id = '${data.activity_id}' AND member_id = ${data.member_id}`,
     )

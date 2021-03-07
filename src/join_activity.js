@@ -40,11 +40,11 @@ exports.getById = (req, res) => {
 
 exports.getByFoundation = (req, res) => {
     let where = ``;
-    const foundation = crypto.decrypt(req.params.foundation);
+    const foundation = crypto.decrypt(req.body.foundation);
     if (foundation != 'admin') {
         where = `AND foundation = '${foundation}'`;
     }
-    let search = `member.name LIKE '%${req.query.search ? req.query.search : ''}%'`;
+    let search = `member.name LIKE '%${req.body.search ? req.body.search : ''}%'`;
 
     mysqlQuery(
         `SELECT *, member.name as member_name,activity.name as activity_name,join_activity.id as join_id FROM join_activity INNER JOIN activity ON activity.id = join_activity.activity_id INNER JOIN foundation ON foundation.name = activity.foundation INNER JOIN member ON member.id = join_activity.member_id WHERE ${search} ${where} `,
@@ -86,8 +86,7 @@ exports.getSuccessByMemberId = (req, res) => {
 exports.create = (req, res) => {
     mysqlQuery('INSERT INTO join_activity SET ?', req.body)
         .then(function (rows) {
-            // res.end(JSON.stringify(row));
-            res.end('last ID: ' + rows.insertId);
+            return res.send('เรียบร้อย')
         })
         .catch((err) =>
             setImmediate(() => {
@@ -127,6 +126,7 @@ exports.setSuccess = (req, res) => {
 };
 
 exports.delete = (req, res) => {
+    console.log('delete');
     mysqlQuery('DELETE FROM join_activity WHERE id = ?', req.params.id)
         .then(function (result) {
             res.end(JSON.stringify(result));

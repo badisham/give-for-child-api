@@ -44,11 +44,11 @@ exports.getById = (req, res) => {
 };
 exports.getByFoundation = (req, res) => {
     let where = ``;
-    const foundation = crypto.decrypt(req.params.foundation);
+    const foundation = crypto.decrypt(req.body.foundation);
     if (foundation != 'admin') {
         where = `AND foundation = '${foundation}'`;
     }
-    let search = `booking.name LIKE '%${req.query.search ? req.query.search : ''}%'`;
+    let search = `booking.name LIKE '%${req.body.search ? req.body.search : ''}%'`;
     mysqlQuery(
         `SELECT *,booking.id as booking_id,booking.name as booking_name,member.name as member_name FROM booking 
         INNER JOIN member ON member.id = booking.member_id 
@@ -99,7 +99,6 @@ exports.create = async (req, res) => {
         name: body.name,
         tel: body.tel,
         date: body.date,
-        location: body.location,
         description: body.description,
     };
     let file_name = '';

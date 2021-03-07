@@ -51,11 +51,12 @@ exports.getByMemberId = (req, res) => {
 
 exports.getByFoundation = (req, res) => {
     let where = ``;
-    const foundation = crypto.decrypt(req.params.foundation);
+    const foundation = crypto.decrypt(req.body.foundation);
     if (foundation != 'admin') {
         where = `AND foundation = '${foundation}'`;
     }
-    let search = `name LIKE '%${req.query.search ? req.query.search : ''}%'`;
+    let search = `name LIKE '%${req.body.search ? req.body.search : ''}%'`;
+    
     mysqlQuery(`SELECT * FROM donation WHERE ${search} ${where}`)
         .then(function (rows) {
             res.send(rows);
